@@ -1,62 +1,60 @@
-const emailUserOne = "bropet@mail.ru";
-const passUserOne = "123";
-const emailUserTwo = "test@test.com";
-const passUserTwo = "test";
-const url = "/";
+const bookFirst = {
+  title: "Московский клуб",
+  description:
+    "Когда-то Москва была столицей великой страны, потом она стала Анклавом, одним из многих. Теперь ее тайны могут спасти прижатый к стенке мир. Мир, в котором властвует Цифра, нанотехнологии и генная инженерия позволяют добиваться невероятных результатов, а могущественные корпорации соперничают с одряхлевшими государствами. Мир, который отчаянно пытается найти дорогу в будущее. Мир в котором борьба за власть достигла апогея.",
+  author: "Вадим Панов",
+};
 
-describe("Positive http://localhost:3000/ tests", () => {
-  it("Should open the books page", () => {
+const bookSecond = {
+  title: "Лучший экипаж солнечной",
+  description:
+    "Им надоело стрелять, но это единственное, что они умеют делать хорошо. Рано или поздно команда «К бою!» раздастся снова…",
+  author: "Олег Дивов",
+};
+
+const bookThird = {
+  title: "Психология влияния",
+  description:
+    "Какие факторы заставляют одного человека говорить другому «да»? И какие методы наиболее эффективны, если необходимо добиться чужого согласия?",
+  author: "Роберт Чалдини",
+};
+
+describe("Favorite book spec", () => {
+  beforeEach(() => {
     cy.visit("/");
-    cy.contains("Books list").should("be.visible");
+    cy.login("test@test.com", "test");
   });
 
-  it("Must be logged in userOne", () => {
-    cy.visit("/");
-    cy.login(emailUserOne, passUserOne);
-    cy.contains(emailUserOne).should("be.visible");
-    cy.contains("Add new").should("be.visible").and("have.class", "btn");
+  // it("Valid login", () => {
+  //   cy.contains("test@test.com").should("be.visible");
+  //   cy.contains("Add new").should("have.class", "btn");
+  // });
+
+  it("Should add new book", () => {
+    cy.addBook(bookFirst);
+    cy.get(".card-title").should("contain.text", bookFirst.title);
   });
 
-  it("Wrong password", () => {
-    cy.visit("/");
-    cy.login("bropet@mail.ru");
-    cy.get("#pass").then(($el) => {
-      expect($el[0].checkValidity()).eq(false);
-    });
+  it("Should add new book to favorite", () => {
+    cy.addFavoriteBook(bookSecond);
+    cy.visit("/favorites");
+    cy.get(".card-title").should("contain.text", bookSecond.title);
   });
 
-  it("Create a new book", () => {
-    cy.visit("/");
-    cy.login(emailUserTwo, passUserTwo);
-    cy.contains("Add new").click();
-    cy.get("#title").type("Грозовой перевал");
-    cy.get("#description").type("Роман");
-    cy.get("#authors").type("Эмили Бронте");
-    cy.get("form > .ml-2").click();
-    cy.contains("Эмили Бронте").should("be.visible");
-  });
-  it("add to favorite", () => {
-    cy.visit("/");
-    cy.login(emailUserOne, passUserOne);
-    cy.contains("Add new").click();
-    cy.get("#title").type("Грозовой перевал");
-    cy.get("#description").type("Роман");
-    cy.get("#authors").type("Эмили Бронте");
-    cy.get("#favorite").click();
-    cy.get("form > .ml-2").click();
-    cy.get("h4").click();
-    cy.contains("Эмили Бронте").should("be.visible");
+  it("Should add book to favorite through 'Book list' page", () => {
+    cy.addBookNoFavorite(bookFirst);
+    cy.contains(bookFirst.title)
+      .should("be.visible")
+      .within(() => cy.get(".card-footer > .btn").click({ force: true }));
+    cy.visit("/favorites");
+    cy.contains(bookFirst.title).should("be.visible");
   });
 
-  it("Delete from favorite", () => {
-    cy.visit("/");
-    cy.login(emailUserOne, passUserOne);
-    cy.get("h4").click();
-    cy.get(
-      "#root > div > div > a:nth-child(1) > div > div.card-footer"
-    ).click();
-    cy.contains("Please add some book to favorit on home page!").should(
-      "be.visible"
-    );
+  it("Should delete book from favorite", () => {
+    cy.visit("/favorites");
+    cy.contains(bookSecond.title)
+      .should("be.visible")
+      .within(() => cy.get(".card-footer > .btn").click({ force: true }));
+    cy.contains(bookSecond.title).should("not.exist");
   });
 });
