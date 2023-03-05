@@ -1,45 +1,59 @@
 // ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
+// Этот пример commands.js показывает вам, как
+// создавать различные пользовательские команды и перезаписывать
+// существующие команды.
 //
-// For more comprehensive examples of custom
-// commands please read more here:
+// Для получения более полных примеров пользовательских
+// команды пожалуйста, прочитайте больше здесь:
 // https://on.cypress.io/custom-commands
 // ***********************************************
 //
 //
-// -- This is a parent command --
-Cypress.Commands.add(
-    "login",
-    (emailUserOne, passUserOne, emailUserTwo, passUserTwo) => {
-      cy.contains("Log in").click();
-      if (emailUserOne) {
-        cy.get("#mail").type(emailUserOne);
-      }
-      if (passUserOne) {
-        cy.get("#pass").type(passUserOne);
-      }
-      if (emailUserTwo) {
-        cy.get("#mail").type(emailUserTwo);
-      }
-      if (passUserTwo) {
-        cy.get("#pass").type(passUserTwo);
-      }
-  
-      cy.contains("Submit").click();
-    }
-  );
-  
-  //
-  //
-  // -- This is a child command --
-  // Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-  //
-  //
-  // -- This is a dual command --
-  // Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-  //
-  //
-  // -- This will overwrite an existing command --
-  // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+// -- Это родительская команда --
+// Кипарис.Команды.add("login", (логин, пароль) => {
+//
+//
+// -- Это дочерняя команда --
+// Кипарис.Команды.добавить('перетащить', { prevSubject: 'элемент'}, (тема, параметры) => { ... })
+//
+//
+// -- Это двойная команда --
+// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
+//
+//
+// -- This will overwrite an existing command --
+// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add("login", (login, password) => {
+  cy.contains("Log in").click();
+  cy.get("#mail").type(login);
+  cy.get("#pass").type(password);
+  cy.contains("Submit").click();
+});
+
+Cypress.Commands.add("addBook", (book) => {
+  cy.contains("Add new").click();
+  cy.contains("Book description");
+  cy.get("#title").type(book.title);
+  cy.get("#description").type(book.description);
+  cy.get("#authors").type(book.author);
+  cy.contains("Submit").click();
+});
+
+Cypress.Commands.add("addFavoriteBook", (book) => {
+  cy.contains("Add new").click();
+  cy.contains("Book description");
+  cy.get("#title").type(book.title);
+  cy.get("#description").type(book.description);
+  cy.get("#authors").type(book.author);
+  cy.get("#favorite").click();
+  cy.contains("Submit").click();
+});
+
+Cypress.Commands.add("addBookNoFavorite", (book) => {
+  cy.contains("Add new").click();
+  cy.get("input#title").type(book.title);
+  cy.get("input#description").type(book.description);
+  cy.get("input#authors").type(book.author);
+  cy.contains("Submit").click();
+});
